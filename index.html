@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Tactics Traits</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Use the Inter font family */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Merge Tactics Traits</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">A visual gallery of all trait icons.</p>
+        </header>
+
+        <!-- Grid container for the trait images -->
+        <div id="traits-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            <!-- Trait items will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Array of trait names
+        const traits = [
+            'ace', 'assassin', 'avenger', 'brawler', 'clan', 
+            'goblin', 'juggernaut', 'noble', 'ranger', 'thrower', 'undead'
+        ];
+
+        // Get the grid container
+        const grid = document.getElementById('traits-grid');
+
+        // Loop through the traits and create a card for each one
+        traits.forEach(trait => {
+            // Create the card element
+            const card = document.createElement('div');
+            card.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 flex flex-col items-center justify-center';
+
+            // Create the image element
+            const img = document.createElement('img');
+            img.src = `https://www.deckshop.pro/img/merge-tactics/traits/${trait}.png`;
+            img.alt = `${trait.charAt(0).toUpperCase() + trait.slice(1)} Trait Icon`;
+            img.className = 'w-24 h-24 object-contain';
+            // Fallback image in case the original fails to load
+            img.onerror = function() {
+                this.onerror=null;
+                this.src='https://placehold.co/100x100/e2e8f0/4a5568?text=Error';
+            };
+
+
+            // Create the title element
+            const title = document.createElement('h3');
+            title.className = 'text-lg font-semibold mt-4 text-center text-gray-900 dark:text-white';
+            title.textContent = trait.charAt(0).toUpperCase() + trait.slice(1);
+
+            // Append image and title to the card
+            card.appendChild(img);
+            card.appendChild(title);
+
+            // Append the card to the grid
+            grid.appendChild(card);
+        });
+    </script>
+
+</body>
+</html>
