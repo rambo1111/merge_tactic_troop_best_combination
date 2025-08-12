@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Archer",
+    "traits": ["Clan", "Ranger"]
+  },
+  {
+    "name": "Archer Queen",
+    "traits": ["Clan", "Avenger"]
+  },
+  {
+    "name": "Bandit",
+    "traits": ["Ace", "Avenger"]
+  },
+  {
+    "name": "Barbarian",
+    "traits": ["Clan", "Brawler"]
+  },
+  {
+    "name": "Bomber",
+    "traits": ["Undead", "Thrower"]
+  },
+  {
+    "name": "Dart Goblin",
+    "traits": ["Goblin", "Ranger"]
+  },
+  {
+    "name": "Executioner",
+    "traits": ["Ace", "Thrower"]
+  },
+  {
+    "name": "Giant Skeleton",
+    "traits": ["Undead", "Brawler"]
+  },
+  {
+    "name": "Goblin",
+    "traits": ["Goblin", "Assassin"]
+  },
+  {
+    "name": "Goblin Machine",
+    "traits": ["Goblin", "Juggernaut"]
+  },
+  {
+    "name": "Golden Knight",
+    "traits": ["Noble", "Assassin"]
+  },
+  {
+    "name": "Knight",
+    "traits": ["Noble", "Juggernaut"]
+  },
+  {
+    "name": "Mega Knight",
+    "traits": ["Ace", "Brawler"]
+  },
+  {
+    "name": "P.E.K.K.A",
+    "traits": ["Ace", "Juggernaut"]
+  },
+  {
+    "name": "Prince",
+    "traits": ["Noble", "Brawler"]
+  },
+  {
+    "name": "Princess",
+    "traits": ["Noble", "Ranger"]
+  },
+  {
+    "name": "Royal Ghost",
+    "traits": ["Undead", "Assassin"]
+  },
+  {
+    "name": "Skeleton King",
+    "traits": ["Undead", "Juggernaut"]
+  },
+  {
+    "name": "Spear Goblin",
+    "traits": ["Goblin", "Thrower"]
+  },
+  {
+    "name": "Valkyrie",
+    "traits": ["Clan", "Avenger"]
+  }
+]

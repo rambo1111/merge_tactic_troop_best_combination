@@ -1,0 +1,44 @@
+{
+  "traits": {
+    "Ace": [
+      "2 Troops: Captain gains 30% bonus damage.",
+      "4 Troops: Captain gains 60% bonus damage and gains +30% HP of damage dealt."
+    ],
+    "Assassin": [
+      "3 Troops: +35% Critical Chance and Critical Damage."
+    ],
+    "Avenger": [
+      "3 Troops: +30% bonus damage."
+    ],
+    "Brawler": [
+      "2 Troops: +30% bonus HP.",
+      "4 Troops: +60% for Brawlers, +30% for the team."
+    ],
+    "Clan": [
+      "2 Troops: +30% of max HP and Hit Speed.",
+      "4 Troops: +60% of max HP and Hit Speed for Clans, +30% for the team."
+    ],
+    "Goblin": [
+      "2 Troops: Gain a 2-Elixir Goblin.",
+      "4 Troops: +60% chance of gaining a 3 or 4-Elixir Goblin."
+    ],
+    "Juggernaut": [
+      "2 Troops: +15% bonus Shield, Juggernauts +30%",
+      "4 Troops: +30% bonus Shield, Juggernauts +60%"
+    ],
+    "Noble": [
+      "2 Troops: 20% less Damage and bonus Damage.",
+      "4 Troops: 40% less Damage and bonus Damage."
+    ],
+    "Ranger": [
+      "3 Troops: +15% Hit Speed."
+    ],
+    "Thrower": [
+      "3 Troops: +10% Damage per Hex."
+    ],
+    "Undead": [
+      "2 Troops: Curses 1 enemy, max HP cut by 25%",
+      "4 Troops: Curses 2 enemies, max HP cut by 50%"
+    ]
+  }
+}

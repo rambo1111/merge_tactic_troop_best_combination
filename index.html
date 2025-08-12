@@ -11,22 +11,13 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111827; /* bg-gray-900 */
-            color: #f3f4f6; /* text-gray-100 */
+            background-color: #111827;
+            color: #f3f4f6;
         }
         .card {
-            background-color: #1f2937; /* bg-gray-800 */
-            border: 1px solid #374151; /* border-gray-700 */
-            border-radius: 0.75rem; /* rounded-xl */
-        }
-        .troop-tag {
-            background-color: #374151; /* bg-gray-700 */
-            color: #d1d5db; /* text-gray-300 */
-        }
-        .trait-tag {
-            background-color: #b91c1c; /* bg-red-700 */
-            color: #ffffff; /* text-white */
-            flex-shrink: 0;
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 0.75rem;
         }
         #loader {
             border-top-color: #3498db;
@@ -43,15 +34,32 @@
             <h1 class="text-3xl sm:text-4xl font-bold text-white">Elite Combinations with 5 Activated Traits</h1>
         </header>
 
+        <!-- Loader -->
         <div id="loader-container" class="flex flex-col items-center justify-center my-16">
             <div id="loader" class="w-16 h-16 border-4 border-gray-700 rounded-full"></div>
             <p class="text-gray-400 mt-4">Finding all 5-trait combinations...</p>
         </div>
 
+        <!-- Filter UI -->
+        <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <div class="relative w-full sm:w-96">
+                <input id="troop-filter" type="text" placeholder="Type troop name..."
+                    class="w-full p-2 rounded-lg border border-gray-700 bg-gray-800 text-gray-100 focus:outline-none" list="troop-list">
+                <datalist id="troop-list"></datalist>
+            </div>
+            <button id="add-troop-filter" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium">
+                Add Troop
+            </button>
+        </div>
+
+        <!-- Selected Troops -->
+        <div id="selected-troops" class="flex flex-wrap gap-2 mb-6 justify-center"></div>
+
+        <!-- Results Count -->
         <p id="results-count" class="hidden text-center text-gray-400 mb-6 font-medium"></p>
 
-        <main id="combinations-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            </main>
+        <!-- Results Grid -->
+        <main id="combinations-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></main>
     </div>
 
     <script>
@@ -93,49 +101,103 @@
             "Undead": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/undead.png", "tiers": ["2 Troops: Curses 1 enemy, max HP cut by 25%", "4 Troops: Curses 2 enemies, max HP cut by 50%"] }
         };
 
-        // --- LOGIC ---
+        // Populate datalist
+        const troopListEl = document.getElementById('troop-list');
+        troops.forEach(t => {
+            const option = document.createElement('option');
+            option.value = t.name;
+            troopListEl.appendChild(option);
+        });
+
+        let selectedTroops = [];
         let fiveTraitCombinations = [];
 
+        // Add troop to filter
+        document.getElementById('add-troop-filter').addEventListener('click', addTroopFromInput);
+        document.getElementById('troop-filter').addEventListener('keypress', e => {
+            if (e.key === 'Enter') addTroopFromInput();
+        });
+
+        function addTroopFromInput() {
+            const input = document.getElementById('troop-filter');
+            const troopName = input.value.trim();
+            if (troopName && troops.some(t => t.name.toLowerCase() === troopName.toLowerCase()) && !selectedTroops.includes(troopName)) {
+                selectedTroops.push(troopName);
+                renderSelectedTroops();
+                filterResults();
+            }
+            input.value = '';
+        }
+
+        function renderSelectedTroops() {
+            const container = document.getElementById('selected-troops');
+            container.innerHTML = '';
+            selectedTroops.forEach(name => {
+                const troop = troops.find(t => t.name === name);
+                const tag = document.createElement('div');
+                tag.className = 'bg-blue-700 text-white px-3 py-1 rounded-full flex items-center gap-2';
+            
+                tag.innerHTML = `
+                    <img src="${troop.image}" alt="${name}" class="w-6 h-6 rounded-full">
+                    <span>${name}</span>
+                    <button class="text-red-400 font-bold">&times;</button>
+                `;
+            
+                tag.querySelector('button').addEventListener('click', () => {
+                    selectedTroops = selectedTroops.filter(t => t !== name);
+                    renderSelectedTroops();
+                    filterResults();
+                });
+            
+                container.appendChild(tag);
+            });
+        }
+
+
+        function filterResults() {
+            const grid = document.getElementById('combinations-grid');
+            grid.innerHTML = '';
+            const filtered = selectedTroops.length === 0
+                ? fiveTraitCombinations
+                : fiveTraitCombinations.filter(combo =>
+                    selectedTroops.every(sel => combo.troops.some(t => t.name === sel))
+                );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="text-center text-gray-400 md:col-span-2 lg:col-span-3">No combinations found for selected troops.</p>`;
+            } else {
+                const fragment = document.createDocumentFragment();
+                filtered.forEach(comboData => {
+                    fragment.appendChild(createCombinationCard(comboData));
+                });
+                grid.appendChild(fragment);
+            }
+
+            // Always show grid when results ready
+            grid.classList.remove('hidden');
+        }
+
+        // Calculation
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(calculateAndDisplay, 50);
         });
 
         function calculateAndDisplay() {
             const allCombinations = getCombinations(troops, 6);
-            
             const combinationsWithTraits = allCombinations.map(combo => ({
                 troops: combo,
                 activatedTraits: getActivatedTraits(countTraits(combo))
             }));
-            
             fiveTraitCombinations = combinationsWithTraits.filter(c => c.activatedTraits.length === 5);
 
-            displayResults();
-        }
-
-        function displayResults() {
-            const grid = document.getElementById('combinations-grid');
-            const resultsCount = document.getElementById('results-count');
-            
-            grid.innerHTML = '';
             document.getElementById('loader-container').style.display = 'none';
+            document.getElementById('results-count').textContent =
+                `Found ${fiveTraitCombinations.length} combinations with exactly 5 activated traits.`;
+            document.getElementById('results-count').classList.remove('hidden');
 
-            resultsCount.textContent = `Found ${fiveTraitCombinations.length} combinations with exactly 5 activated traits.`;
-            resultsCount.classList.remove('hidden');
-
-            if (fiveTraitCombinations.length === 0) {
-                grid.innerHTML = `<p class="text-center text-gray-400 md:col-span-2 lg:col-span-3">No combinations found with this criteria.</p>`;
-            } else {
-                const fragment = document.createDocumentFragment();
-                fiveTraitCombinations.forEach(comboData => {
-                    fragment.appendChild(createCombinationCard(comboData));
-                });
-                grid.appendChild(fragment);
-            }
-            
-            grid.classList.remove('hidden');
+            filterResults();
         }
-        
+
         function countTraits(combo) {
             const traitCounts = {};
             combo.forEach(troop => troop.traits.forEach(trait => {
@@ -184,11 +246,19 @@
         function createCombinationCard(comboData) {
             const card = document.createElement('div');
             card.className = 'card p-4 flex flex-col space-y-4';
-
-            const troopsHtml = `<div><h3 class="text-lg font-semibold text-white mb-2">Troops</h3><div class="flex flex-wrap gap-2">${comboData.troops.map(troop => `<div class="bg-gray-700 p-2 rounded-lg text-center"><img src="${troop.image}" alt="${troop.name}" class="w-12 h-12 mx-auto mb-1"><span class="text-sm text-gray-300">${troop.name}</span></div>`).join('')}</div></div>`;
-            
-            const traitsHtml = `<div><h3 class="text-lg font-semibold text-white mb-2">Activated Traits (5)</h3><ul class="space-y-2">${comboData.activatedTraits.map(trait => `<li class="flex items-center space-x-3"><img src="${trait.icon}" alt="${trait.name}" class="w-8 h-8 rounded-full"><span class="font-semibold text-red-400">${trait.name}</span><span class="text-gray-300 text-sm">${trait.description}</span></li>`).join('')}</ul></div>`;
-
+            const troopsHtml = `<div><h3 class="text-lg font-semibold text-white mb-2">Troops</h3>
+                <div class="flex flex-wrap gap-2">
+                ${comboData.troops.map(troop => `<div class="bg-gray-700 p-2 rounded-lg text-center">
+                    <img src="${troop.image}" alt="${troop.name}" class="w-12 h-12 mx-auto mb-1">
+                    <span class="text-sm text-gray-300">${troop.name}</span>
+                </div>`).join('')}</div></div>`;
+            const traitsHtml = `<div><h3 class="text-lg font-semibold text-white mb-2">Activated Traits (5)</h3>
+                <ul class="space-y-2">
+                ${comboData.activatedTraits.map(trait => `<li class="flex items-center space-x-3">
+                    <img src="${trait.icon}" alt="${trait.name}" class="w-8 h-8 rounded-full">
+                    <span class="font-semibold text-red-400">${trait.name}</span>
+                    <span class="text-gray-300 text-sm">${trait.description}</span>
+                </li>`).join('')}</ul></div>`;
             card.innerHTML = troopsHtml + traitsHtml;
             return card;
         }
