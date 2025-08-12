@@ -3,75 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merge Tactics Traits</title>
-    <!-- Tailwind CSS for styling -->
+    <title>5-Trait Troop Combinations</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Use the Inter font family */
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #f3f4f6; /* text-gray-100 */
+        }
+        .card {
+            background-color: #1f2937; /* bg-gray-800 */
+            border: 1px solid #374151; /* border-gray-700 */
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        .troop-tag {
+            background-color: #374151; /* bg-gray-700 */
+            color: #d1d5db; /* text-gray-300 */
+        }
+        .trait-tag {
+            background-color: #b91c1c; /* bg-red-700 */
+            color: #ffffff; /* text-white */
+            flex-shrink: 0;
+        }
+        #loader {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-
-    <div class="container mx-auto px-4 py-8">
-        <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Merge Tactics Traits</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">A visual gallery of all trait icons.</p>
+<body class="p-4 sm:p-6 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white">Elite Combinations with 5 Activated Traits</h1>
         </header>
 
-        <!-- Grid container for the trait images -->
-        <div id="traits-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            <!-- Trait items will be injected here by JavaScript -->
+        <div id="loader-container" class="flex flex-col items-center justify-center my-16">
+            <div id="loader" class="w-16 h-16 border-4 border-gray-700 rounded-full"></div>
+            <p class="text-gray-400 mt-4">Finding all 5-trait combinations...</p>
         </div>
+
+        <p id="results-count" class="hidden text-center text-gray-400 mb-6 font-medium"></p>
+
+        <main id="combinations-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </main>
     </div>
 
     <script>
-        // Array of trait names
-        const traits = [
-            'ace', 'assassin', 'avenger', 'brawler', 'clan', 
-            'goblin', 'juggernaut', 'noble', 'ranger', 'thrower', 'undead'
+        // --- DATA ---
+        const troops = [
+            { "name": "Archer", "traits": ["Clan", "Ranger"], "image": "https://api-assets.clashroyale.com/cards/300/W4Hmp8MTSdXANN8KdblbtHwtsbt0o749BbxNqmJYfA8.png" },
+            { "name": "Archer Queen", "traits": ["Clan", "Avenger"], "image": "https://api-assets.clashroyale.com/cards/300/p7OQmOAFTery7zCzlpDdm-LOD1kINTm42AwIHchZfWk.png" },
+            { "name": "Bandit", "traits": ["Ace", "Avenger"], "image": "https://api-assets.clashroyale.com/cards/300/QWDdXMKJNpv0go-HYaWQWP6p8uIOHjqn-zX7G0p3DyM.png" },
+            { "name": "Barbarian", "traits": ["Clan", "Brawler"], "image": "https://api-assets.clashroyale.com/cards/300/TvJsuu2S4yhyk1jVYUAQwdKOnW4U77KuWWOTPOWnwfI.png" },
+            { "name": "Bomber", "traits": ["Undead", "Thrower"], "image": "https://api-assets.clashroyale.com/cards/300/12n1CesxKIcqVYntjxcF36EFA-ONw7Z-DoL0_rQrbdo.png" },
+            { "name": "Dart Goblin", "traits": ["Goblin", "Ranger"], "image": "https://api-assets.clashroyale.com/cards/300/BmpK3bqEAviflqHCdxxnfm-_l3pRPJw3qxHkwS55nCY.png" },
+            { "name": "Executioner", "traits": ["Ace", "Thrower"], "image": "https://api-assets.clashroyale.com/cards/300/9XL5BP2mqzV8kza6KF8rOxrpCZTyuGLp2l413DTjEoM.png" },
+            { "name": "Giant Skeleton", "traits": ["Undead", "Brawler"], "image": "https://api-assets.clashroyale.com/cards/300/0p0gd0XaVRu1Hb1iSG1hTYbz2AN6aEiZnhaAib5O8Z8.png" },
+            { "name": "Goblin", "traits": ["Goblin", "Assassin"], "image": "https://api-assets.clashroyale.com/cards/300/X_DQUye_OaS3QN6VC9CPw05Fit7wvSm3XegXIXKP--0.png" },
+            { "name": "Goblin Machine", "traits": ["Goblin", "Juggernaut"], "image": "https://api-assets.clashroyale.com/cards/300/-iLlotr6GCFndL_1BSBqWBb6DnsHBhLerd5EblZDNfU.png" },
+            { "name": "Golden Knight", "traits": ["Noble", "Assassin"], "image": "https://api-assets.clashroyale.com/cards/300/WJd207D0O1sN-l1FTb8P9KhYL2oF5jY26vRUfTUW3FQ.png" },
+            { "name": "Knight", "traits": ["Noble", "Juggernaut"], "image": "https://api-assets.clashroyale.com/cards/300/jAj1Q5rclXxU9kVImGqSJxa4wEMfEhvwNQ_4jiGUuqg.png" },
+            { "name": "Mega Knight", "traits": ["Ace", "Brawler"], "image": "https://api-assets.clashroyale.com/cards/300/O2NycChSNhn_UK9nqBXUhhC_lILkiANzPuJjtjoz0CE.png" },
+            { "name": "P.E.K.K.A", "traits": ["Ace", "Juggernaut"], "image": "https://api-assets.clashroyale.com/cards/300/MlArURKhn_zWAZY-Xj1qIRKLVKquarG25BXDjUQajNs.png" },
+            { "name": "Prince", "traits": ["Noble", "Brawler"], "image": "https://api-assets.clashroyale.com/cards/300/3JntJV62aY0G1Qh6LIs-ek-0ayeYFY3VItpG7cb9I60.png" },
+            { "name": "Princess", "traits": ["Noble", "Ranger"], "image": "https://api-assets.clashroyale.com/cards/300/bAwMcqp9EKVIKH3ZLm_m0MqZFSG72zG-vKxpx8aKoVs.png" },
+            { "name": "Royal Ghost", "traits": ["Undead", "Assassin"], "image": "https://api-assets.clashroyale.com/cards/300/3En2cz0ISQAaMTHY3hj3rTveFN2kJYq-H4VxvdJNvCM.png" },
+            { "name": "Skeleton King", "traits": ["Undead", "Juggernaut"], "image": "https://api-assets.clashroyale.com/cards/300/dCd69_wN9f8DxwuqOGtR4QgWhHIPIaTNxZ1e23RzAAc.png" },
+            { "name": "Spear Goblin", "traits": ["Goblin", "Thrower"], "image": "https://api-assets.clashroyale.com/cards/300/FSDFotjaXidI4ku_WFpVCTWS1hKGnFh1sxX0lxM43_E.png" },
+            { "name": "Valkyrie", "traits": ["Clan", "Avenger"], "image": "https://api-assets.clashroyale.com/cards/300/0lIoYf3Y_plFTzo95zZL93JVxpfb3MMgFDDhgSDGU9A.png" }
         ];
 
-        // Get the grid container
-        const grid = document.getElementById('traits-grid');
+        const traitsData = {
+            "Ace": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/ace.png", "tiers": ["2 Troops: Captain gains 30% bonus damage.", "4 Troops: Captain gains 60% bonus damage and gains +30% HP of damage dealt."] },
+            "Assassin": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/assassin.png", "tiers": ["3 Troops: +35% Critical Chance and Critical Damage."] },
+            "Avenger": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/avenger.png", "tiers": ["3 Troops: +30% bonus damage."] },
+            "Brawler": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/brawler.png", "tiers": ["2 Troops: +30% bonus HP.", "4 Troops: +60% for Brawlers, +30% for the team."] },
+            "Clan": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/clan.png", "tiers": ["2 Troops: +30% of max HP and Hit Speed.", "4 Troops: +60% of max HP and Hit Speed for Clans, +30% for the team."] },
+            "Goblin": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/goblin.png", "tiers": ["2 Troops: Gain a 2-Elixir Goblin.", "4 Troops: +60% chance of gaining a 3 or 4-Elixir Goblin."] },
+            "Juggernaut": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/juggernaut.png", "tiers": ["2 Troops: +15% bonus Shield, Juggernauts +30%", "4 Troops: +30% bonus Shield, Juggernauts +60%"] },
+            "Noble": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/noble.png", "tiers": ["2 Troops: 20% less Damage and bonus Damage.", "4 Troops: 40% less Damage and bonus Damage."] },
+            "Ranger": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/ranger.png", "tiers": ["3 Troops: +15% Hit Speed."] },
+            "Thrower": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/thrower.png", "tiers": ["3 Troops: +10% Damage per Hex."] },
+            "Undead": { "icon": "https://www.deckshop.pro/img/merge-tactics/traits/undead.png", "tiers": ["2 Troops: Curses 1 enemy, max HP cut by 25%", "4 Troops: Curses 2 enemies, max HP cut by 50%"] }
+        };
 
-        // Loop through the traits and create a card for each one
-        traits.forEach(trait => {
-            // Create the card element
-            const card = document.createElement('div');
-            card.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 flex flex-col items-center justify-center';
+        // --- LOGIC ---
+        let fiveTraitCombinations = [];
 
-            // Create the image element
-            const img = document.createElement('img');
-            img.src = `https://www.deckshop.pro/img/merge-tactics/traits/${trait}.png`;
-            img.alt = `${trait.charAt(0).toUpperCase() + trait.slice(1)} Trait Icon`;
-            img.className = 'w-24 h-24 object-contain';
-            // Fallback image in case the original fails to load
-            img.onerror = function() {
-                this.onerror=null;
-                this.src='https://placehold.co/100x100/e2e8f0/4a5568?text=Error';
-            };
-
-
-            // Create the title element
-            const title = document.createElement('h3');
-            title.className = 'text-lg font-semibold mt-4 text-center text-gray-900 dark:text-white';
-            title.textContent = trait.charAt(0).toUpperCase() + trait.slice(1);
-
-            // Append image and title to the card
-            card.appendChild(img);
-            card.appendChild(title);
-
-            // Append the card to the grid
-            grid.appendChild(card);
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(calculateAndDisplay, 50);
         });
-    </script>
 
+        function calculateAndDisplay() {
+            const allCombinations = getCombinations(troops, 6);
+            
+            const combinationsWithTraits = allCombinations.map(combo => ({
+                troops: combo,
+                activatedTraits: getActivatedTraits(countTraits(combo))
+            }));
+            
+            fiveTraitCombinations = combinationsWithTraits.filter(c => c.activatedTraits.length === 5);
+
+            displayResults();
+        }
+
+        function displayResults() {
+            const grid = document.getElementById('combinations-grid');
+            const resultsCount = document.getElementById('results-count');
+            
+            grid.innerHTML = '';
+            document.getElementById('loader-container').style.display = 'none';
+
+            resultsCount.textContent = `Found ${fiveTraitCombinations.length} combinations with exactly 5 activated traits.`;
+            resultsCount.classList.remove('hidden');
+
+            if (fiveTraitCombinations.length === 0) {
+                grid.innerHTML = `<p class="text-center text-gray-400 md:col-span-2 lg:col-span-3">No combinations found with this criteria.</p>`;
+            } else {
+                const fragment = document.createDocumentFragment();
+                fiveTraitCombinations.forEach(comboData => {
+                    fragment.appendChild(createCombinationCard(comboData));
+                });
+                grid.appendChild(fragment);
+            }
+            
+            grid.classList.remove('hidden');
+        }
+        
+        function countTraits(combo) {
+            const traitCounts = {};
+            combo.forEach(troop => troop.traits.forEach(trait => {
+                traitCounts[trait] = (traitCounts[trait] || 0) + 1;
+            }));
+            return traitCounts;
+        }
+
+        function getCombinations(arr, k) {
+            const result = [];
+            function combine(startIndex, currentCombination) {
+                if (currentCombination.length === k) {
+                    result.push([...currentCombination]);
+                    return;
+                }
+                if (startIndex >= arr.length) return;
+                currentCombination.push(arr[startIndex]);
+                combine(startIndex + 1, currentCombination);
+                currentCombination.pop();
+                combine(startIndex + 1, currentCombination);
+            }
+            combine(0, []);
+            return result;
+        }
+
+        function getActivatedTraits(traitCounts) {
+            const activated = [];
+            for (const traitName in traitCounts) {
+                const count = traitCounts[traitName];
+                const availableTiers = traitsData[traitName].tiers;
+                if (!availableTiers) continue;
+                let highestActivatedTier = null;
+                availableTiers.forEach(tierDescription => {
+                    const requiredCount = parseInt(tierDescription.match(/^\d+/)[0], 10);
+                    if (count >= requiredCount) {
+                        highestActivatedTier = tierDescription;
+                    }
+                });
+                if (highestActivatedTier) {
+                    activated.push({ name: traitName, description: highestActivatedTier, icon: traitsData[traitName].icon });
+                }
+            }
+            return activated;
+        }
+
+        function createCombinationCard(comboData) {
+            const card = document.createElement('div');
+            card.className = 'card p-4 flex flex-col space-y-4';
+
+            const troopsHtml = `<div><h3 class="text-lg font-semibold text-white mb-2">Troops</h3><div class="flex flex-wrap gap-2">${comboData.troops.map(troop => `<div class="bg-gray-700 p-2 rounded-lg text-center"><img src="${troop.image}" alt="${troop.name}" class="w-12 h-12 mx-auto mb-1"><span class="text-sm text-gray-300">${troop.name}</span></div>`).join('')}</div></div>`;
+            
+            const traitsHtml = `<div><h3 class="text-lg font-semibold text-white mb-2">Activated Traits (5)</h3><ul class="space-y-2">${comboData.activatedTraits.map(trait => `<li class="flex items-center space-x-3"><img src="${trait.icon}" alt="${trait.name}" class="w-8 h-8 rounded-full"><span class="font-semibold text-red-400">${trait.name}</span><span class="text-gray-300 text-sm">${trait.description}</span></li>`).join('')}</ul></div>`;
+
+            card.innerHTML = troopsHtml + traitsHtml;
+            return card;
+        }
+    </script>
 </body>
 </html>
